@@ -2,13 +2,13 @@
 # Format: week -> (size comparison, length in cm/inches)
 
 PREGNANCY_SIZES = {
-    4: ("Poppy seed", "0.2 cm"),
-    5: ("Sesame seed", "0.3 cm"),
-    6: ("Lentil", "0.6 cm"),
-    7: ("Blueberry", "1 cm"),
-    8: ("Raspberry", "1.6 cm"),
-    9: ("Grape", "2.3 cm"),
-    10: ("Kumquat", "3.1 cm"),
+    4: ("Chiasamen", "1.5 mm"),
+    5: ("Sesamesamen", "2 mm"),
+    6: ("Erbse", "5 mm"),
+    7: ("Heidelbeere", "9.5 mm"),
+    8: ("Himbeere", "1.6 cm"),
+    9: ("Kirsche", "2.3 cm"),
+    10: ("Erdbeere", "3.1 cm"),
     11: ("Laubfrosch", "4.1 cm"),
     12: ("Pflaume", "5.4 cm"),
     13: ("Zitrone", "6.7 cm"),
