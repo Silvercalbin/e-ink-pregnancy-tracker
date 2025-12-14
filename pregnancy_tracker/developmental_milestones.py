@@ -40,7 +40,7 @@ def get_milestone_for_week(week):
         },
         10: {
             "size": "Kumquat",
-            "weight": "4g",
+            "weight": "35g",
             "development": "Vital organs functioning, tooth buds forming"
         },
         11: {
