@@ -4,6 +4,16 @@
             "date": "2026-01-02",
             "time": "10:00 Uhr",
             "type": "Frauenarzt"
+        },
+        {
+            "date": "2025-12-15",
+            "time": "14:00 Uhr",
+            "type": "Tierarzt"
+        },
+        {
+            "date": "2026-03-28",
+            "time": "09:00 Uhr",
+            "type": "Werkstatt"
         }
     ]
 }
