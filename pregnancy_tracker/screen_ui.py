@@ -327,7 +327,7 @@ class ScreenUI:
         
         # Draw weight
         weight_label_font = create_font(13)
-        weight_label = "WEIGHT"
+        weight_label = "GEWICHT"
         w, h = self._calculate_text_size(weight_label, weight_label_font)
         pos = ((self.width - w) / 2, line_y + 20)
         self._img_draw.text(pos, weight_label, font=weight_label_font, fill=DARK_GRAY)
@@ -340,7 +340,7 @@ class ScreenUI:
         
         # Draw development info with text wrapping
         dev_label_font = create_font(13)
-        dev_label = "DEVELOPMENT"
+        dev_label = "ENTWICKLUNG"
         w, h = self._calculate_text_size(dev_label, dev_label_font)
         pos = ((self.width - w) / 2, line_y + 70)
         self._img_draw.text(pos, dev_label, font=dev_label_font, fill=DARK_GRAY)
