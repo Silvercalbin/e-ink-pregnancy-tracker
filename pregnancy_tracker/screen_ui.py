@@ -139,7 +139,7 @@ class ScreenUI:
         # LEFT COLUMN - Week information
         # Draw week label (bigger, darker)
         week_label_font = create_font(18)  # Increased from 14
-        week_label = "WEEK"
+        week_label = "WOCHE"
         w, h = self._calculate_text_size(week_label, week_label_font)
         pos = (left_column_x - w/2, content_start_y)
         self._img_draw.text(pos, week_label, font=week_label_font, fill=BLACK)  # Changed to BLACK
@@ -162,7 +162,7 @@ class ScreenUI:
         # RIGHT COLUMN - Size information
         # Draw "Baby size" label
         size_label_font = create_font(16)  # Increased from 11
-        size_label = "BABY SIZE"
+        size_label = "GRÖßE"
         w, h = self._calculate_text_size(size_label, size_label_font)
         pos = (right_column_x - w/2, content_start_y)
         self._img_draw.text(pos, size_label, font=size_label_font, fill=BLACK)  # Changed to BLACK
