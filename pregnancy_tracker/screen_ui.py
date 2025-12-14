@@ -42,9 +42,9 @@ class ScreenUI:
         # For milestones page, show week-specific title
         if self.current_page == 3:
             week = self.pregnancy.get_pregnancy_week()
-            title_str = f"Week {week} Milestones"
+            title_str = f"Woche {week} Meilenstein"
         else:
-            title_str = "New Foley Tracker"
+            title_str = "Unser Zellklumpen"
         w, h = self._calculate_text_size(title_str, font)
         pos = ((self.width-w)/2, self.TITLE_MARGIN_TOP)
         self._img_draw.text(pos, title_str, font=font, fill=BLACK)
