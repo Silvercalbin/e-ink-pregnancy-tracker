@@ -45,152 +45,152 @@ def get_milestone_for_week(week):
         },
         11: {
             "size": "Fig",
-            "weight": "7g",
-            "development": "Bones hardening, hair follicles forming"
+            "weight": "45g",
+            "development": "Knochen werden härter, Harrzellen entwickeln sich"
         },
         12: {
             "size": "Lime",
-            "weight": "14g",
+            "weight": "58g",
             "development": "Reflexes starting, kidneys producing urine"
         },
         13: {
             "size": "Peapod",
-            "weight": "23g",
+            "weight": "73g",
             "development": "Fingerprints forming, vocal cords developing"
         },
         14: {
             "size": "Lemon",
-            "weight": "43g",
+            "weight": "93g",
             "development": "Face muscles working, can squint & frown"
         },
         15: {
             "size": "Apple",
-            "weight": "70g",
+            "weight": "117g",
             "development": "Legs longer than arms, all joints working"
         },
         16: {
             "size": "Avocado",
-            "weight": "100g",
+            "weight": "146g",
             "development": "Can hear sounds, eyes moving side to side"
         },
         17: {
             "size": "Turnip",
-            "weight": "140g",
+            "weight": "181g",
             "development": "Skeleton hardening, sweat glands developing"
         },
         18: {
             "size": "Bell pepper",
-            "weight": "190g",
+            "weight": "223g",
             "development": "Ears in final position, myelin protecting nerves"
         },
         19: {
             "size": "Heirloom tomato",
-            "weight": "240g",
+            "weight": "273g",
             "development": "Sensory development, vernix caseosa forming"
         },
         20: {
             "size": "Banana",
-            "weight": "300g",
+            "weight": "331g",
             "development": "Can swallow, producing meconium"
         },
         21: {
             "size": "Carrot",
-            "weight": "360g",
+            "weight": "399g",
             "development": "Eyebrows & eyelids complete, responds to sounds"
         },
         22: {
             "size": "Spaghetti squash",
-            "weight": "430g",
+            "weight": "478g",
             "development": "Eyes can perceive light, grip strengthening"
         },
         23: {
             "size": "Mango",
-            "weight": "500g",
+            "weight": "568g",
             "development": "Hearing fully developed, rapid eye movement"
         },
         24: {
             "size": "Corn cob",
-            "weight": "600g",
+            "weight": "670g",
             "development": "Lungs developing branches, taste buds forming"
         },
         25: {
             "size": "Rutabaga",
-            "weight": "660g",
+            "weight": "785g",
             "development": "Responding to voice, nostrils opening"
         },
         26: {
             "size": "Scallion bunch",
-            "weight": "760g",
+            "weight": "913g",
             "development": "Eyes opening, inhaling & exhaling amniotic fluid"
         },
         27: {
             "size": "Cauliflower",
-            "weight": "875g",
+            "weight": "1.06kg",
             "development": "Brain tissue developing, regular sleep cycles"
         },
         28: {
             "size": "Eggplant",
-            "weight": "1kg",
+            "weight": "1.21kg",
             "development": "Can blink, dreaming during REM sleep"
         },
         29: {
             "size": "Butternut squash",
-            "weight": "1.2kg",
+            "weight": "1.37g",
             "development": "Muscles & lungs maturing, head growing"
         },
         30: {
             "size": "Large cabbage",
-            "weight": "1.3kg",
+            "weight": "1.55kg",
             "development": "Red blood cell production, brain developing rapidly"
         },
         31: {
             "size": "Coconut",
-            "weight": "1.5kg",
+            "weight": "1.75g",
             "development": "All five senses working, processing information"
         },
         32: {
             "size": "Jicama",
-            "weight": "1.7kg",
+            "weight": "1.95kg",
             "development": "Bones hardening, practicing breathing"
         },
         33: {
             "size": "Pineapple",
-            "weight": "1.9kg",
+            "weight": "2.16kg",
             "development": "Immune system developing, detecting light"
         },
         34: {
             "size": "Cantaloupe",
-            "weight": "2.1kg",
+            "weight": "2.37kg",
             "development": "Central nervous system maturing, recognizing songs"
         },
         35: {
             "size": "Honeydew melon",
-            "weight": "2.4kg",
+            "weight": "2.59kg",
             "development": "Kidneys fully developed, liver processing waste"
         },
         36: {
             "size": "Romaine lettuce",
-            "weight": "2.6kg",
+            "weight": "2.81kg",
             "development": "Shedding lanugo, digestive system ready"
         },
         37: {
             "size": "Swiss chard",
-            "weight": "2.9kg",
+            "weight": "3.02kg",
             "development": "Full term, practicing breathing & sucking"
         },
         38: {
             "size": "Leek",
-            "weight": "3.1kg",
+            "weight": "3.23kg",
             "development": "Organs mature, brain & nervous system ready"
         },
         39: {
             "size": "Mini watermelon",
-            "weight": "3.3kg",
+            "weight": "3.43kg",
             "development": "Fully developed, building fat layers"
         },
         40: {
             "size": "Small pumpkin",
-            "weight": "3.5kg",
+            "weight": "3.61kg",
             "development": "Ready for birth, all systems functional"
         }
     }
@@ -204,9 +204,9 @@ def get_milestone_for_week(week):
         }
     elif week > 40:
         return {
-            "size": "Small pumpkin",
+            "size": "Kürbis",
             "weight": "3.5kg+",
-            "development": "Fully developed, ready for arrival any day"
+            "development": "Voll entwickelt, bereit für die Geburt"
         }
     
     return milestones.get(week, milestones[40])
