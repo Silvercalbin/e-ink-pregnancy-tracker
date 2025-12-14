@@ -220,7 +220,7 @@ class ScreenUI:
         """Draw the appointments page showing next upcoming appointment"""
         # Draw "Coming Up" as the title instead of "New Foley Tracker"
         title_font = create_font(20)
-        title_str = "Coming Up"
+        title_str = "Nächster Tremin"
         w, h = self._calculate_text_size(title_str, title_font)
         pos = ((self.width-w)/2, self.TITLE_MARGIN_TOP)
         self._img_draw.text(pos, title_str, font=title_font, fill=BLACK)
@@ -285,7 +285,7 @@ class ScreenUI:
         else:
             # No appointments message
             no_appt_font = create_font(18)
-            no_appt_text = "No upcoming appointments"
+            no_appt_text = "Keine anstehende Tremine"
             w, h = self._calculate_text_size(no_appt_text, no_appt_font)
             pos = ((self.width - w) / 2, (self.height - h) / 2)
             self._img_draw.text(pos, no_appt_text, font=no_appt_font, fill=BLACK)
