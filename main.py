@@ -10,6 +10,7 @@ import time
 import logging
 import signal
 import sys
+import datetime  # <-- NEU
 
 # Set logging to only show warnings and errors, not info messages
 logging.basicConfig(level=logging.WARNING)
@@ -27,25 +28,25 @@ pregnancy = None
 def cleanup_and_exit(signum=None, frame=None):
     """Clean up resources and exit"""
     global epd, button_handler
-    
+
     if button_handler:
         try:
             button_handler.cleanup()
         except:
             pass
-    
+
     if epd:
         try:
             epd.sleep()
         except:
             pass
-    
+
     sys.exit(0)
 
 def update_display(page_num):
     """Update display to specified page"""
     global epd, screen_ui
-    
+
     try:
         screen_ui.set_page(page_num)
         himage = screen_ui.draw()
@@ -63,37 +64,48 @@ try:
     epd = epd2in7_V2.EPD()
     epd.init()
     epd.Clear()
-    
+
     # Step 2: Setup pregnancy tracker and UI
     from pregnancy_tracker import ScreenUI, Pregnancy
     pregnancy = Pregnancy(config['expected_birth_date'])
     screen_ui = ScreenUI(epd.height, epd.width, pregnancy, current_page=0)
-    
+
     # Step 3: Show initial screen
     himage = screen_ui.draw()
     epd.display(epd.getbuffer(himage))
-    
+
     # Step 4: Now try to initialize buttons AFTER display is set up
     try:
         # Import RPi.GPIO directly to avoid conflicts
         import RPi.GPIO as GPIO
-        
+
         # Setup GPIO mode
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        
+
         # Button pins
         buttons = {1: 5, 2: 6, 3: 13, 4: 19}
-        
+
         # Setup buttons
         for btn, pin in buttons.items():
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        
+
         # Simple polling loop
         button_states = {btn: 1 for btn in buttons}
         last_press_time = 0
-        
+
         while True:
+            # 🔁 AUTO-REFRESH BEI TAGESWECHSEL
+            if not hasattr(update_display, "_last_date"):
+                update_display._last_date = datetime.date.today()
+
+            today = datetime.date.today()
+            if today != update_display._last_date:
+                logging.warning("New day detected – forcing display refresh")
+                update_display(screen_ui.current_page)
+                update_display._last_date = today
+            # 🔁 ENDE AUTO-REFRESH
+
             for btn, pin in buttons.items():
                 current = GPIO.input(pin)
                 # Button pressed (LOW)
@@ -103,8 +115,9 @@ try:
                         last_press_time = current_time
                         update_display(btn - 1)
                 button_states[btn] = current
+
             time.sleep(0.05)
-            
+
     except ImportError:
         # RPi.GPIO not available - running without buttons
         while True:
