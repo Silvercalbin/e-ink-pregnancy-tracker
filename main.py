@@ -1,8 +1,12 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
 """
-Main script with sequential GPIO initialization
-Initializes display first, then buttons to avoid conflicts
+Main script with smart e-ink refresh logic
+
+Features:
+- Daily refresh at midnight
+- Progress refresh at 0.1% steps (06–22h, start page only)
+- Weekly full clear (Sunday 04:00)
 """
 import json
 import os
@@ -10,43 +14,33 @@ import time
 import logging
 import signal
 import sys
-import datetime  # <-- NEU
+import datetime
 
-# Set logging to only show warnings and errors, not info messages
 logging.basicConfig(level=logging.WARNING)
 
-# Load config first
-config_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.json')
+# Load config
+config_file_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    'config.json'
+)
 config = json.load(open(config_file_path))
 
-# Global variables
+# Globals
 epd = None
-button_handler = None
 screen_ui = None
 pregnancy = None
 
 def cleanup_and_exit(signum=None, frame=None):
-    """Clean up resources and exit"""
-    global epd, button_handler
-
-    if button_handler:
-        try:
-            button_handler.cleanup()
-        except:
-            pass
-
+    global epd
     if epd:
         try:
             epd.sleep()
         except:
             pass
-
     sys.exit(0)
 
 def update_display(page_num):
-    """Update display to specified page"""
     global epd, screen_ui
-
     try:
         screen_ui.set_page(page_num)
         himage = screen_ui.draw()
@@ -54,76 +48,94 @@ def update_display(page_num):
     except Exception as e:
         logging.error(f"Display update error: {e}")
 
-# Register signal handlers
 signal.signal(signal.SIGINT, cleanup_and_exit)
 signal.signal(signal.SIGTERM, cleanup_and_exit)
 
 try:
-    # Step 1: Initialize display FIRST
+    # 🖥 DISPLAY INIT
     from waveshare_epd import epd2in7_V2
     epd = epd2in7_V2.EPD()
     epd.init()
     epd.Clear()
 
-    # Step 2: Setup pregnancy tracker and UI
+    # 🤰 LOGIC INIT
     from pregnancy_tracker import ScreenUI, Pregnancy
     pregnancy = Pregnancy(config['expected_birth_date'])
     screen_ui = ScreenUI(epd.height, epd.width, pregnancy, current_page=0)
 
-    # Step 3: Show initial screen
-    himage = screen_ui.draw()
-    epd.display(epd.getbuffer(himage))
+    # Initial draw
+    update_display(0)
 
-    # Step 4: Now try to initialize buttons AFTER display is set up
+    # State tracking
+    last_date = datetime.date.today()
+    last_progress = round(pregnancy.get_progress() * 100, 1)
+    last_full_clear_week = datetime.date.today().isocalendar()[1]
+
+    # 🎛 BUTTON SETUP
     try:
-        # Import RPi.GPIO directly to avoid conflicts
         import RPi.GPIO as GPIO
 
-        # Setup GPIO mode
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
-        # Button pins
         buttons = {1: 5, 2: 6, 3: 13, 4: 19}
-
-        # Setup buttons
-        for btn, pin in buttons.items():
+        for pin in buttons.values():
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-        # Simple polling loop
-        button_states = {btn: 1 for btn in buttons}
+        button_states = {b: 1 for b in buttons}
         last_press_time = 0
 
         while True:
-            # 🔁 AUTO-REFRESH BEI TAGESWECHSEL
-            if not hasattr(update_display, "_last_date"):
-                update_display._last_date = datetime.date.today()
+            now = datetime.datetime.now()
+            today = now.date()
 
-            today = datetime.date.today()
-            if today != update_display._last_date:
-                logging.warning("New day detected – forcing display refresh")
+            # 🕛 DAILY REFRESH (ALWAYS)
+            if today != last_date:
+                logging.warning("New day detected – daily refresh")
                 update_display(screen_ui.current_page)
-                update_display._last_date = today
-            # 🔁 ENDE AUTO-REFRESH
+                last_date = today
 
+            # 📊 PROGRESS REFRESH (06–22, start page only)
+            if (
+                screen_ui.current_page == 0 and
+                6 <= now.hour <= 22
+            ):
+                current_progress = round(
+                    pregnancy.get_progress() * 100, 1
+                )
+                if current_progress != last_progress:
+                    logging.warning(
+                        f"Progress changed: {last_progress}% → {current_progress}%"
+                    )
+                    update_display(0)
+                    last_progress = current_progress
+
+            # 🧹 WEEKLY FULL CLEAR (Sunday 04:00)
+            current_week = today.isocalendar()[1]
+            if (
+                now.weekday() == 6 and  # Sunday
+                now.hour == 4 and
+                current_week != last_full_clear_week
+            ):
+                logging.warning("Weekly full clear")
+                epd.Clear()
+                update_display(screen_ui.current_page)
+                last_full_clear_week = current_week
+
+            # 🔘 BUTTON HANDLING
             for btn, pin in buttons.items():
-                current = GPIO.input(pin)
-                # Button pressed (LOW)
-                if current == 0 and button_states[btn] == 1:
-                    current_time = time.time()
-                    if current_time - last_press_time > 1:  # 1 second debounce
-                        last_press_time = current_time
+                state = GPIO.input(pin)
+                if state == 0 and button_states[btn] == 1:
+                    now_ts = time.time()
+                    if now_ts - last_press_time > 1:
+                        last_press_time = now_ts
                         update_display(btn - 1)
-                button_states[btn] = current
+                button_states[btn] = state
 
             time.sleep(0.05)
 
     except ImportError:
-        # RPi.GPIO not available - running without buttons
-        while True:
-            time.sleep(1)
-    except Exception as e:
-        logging.error(f"Button initialization failed: {e}")
+        # Headless mode
         while True:
             time.sleep(1)
 
