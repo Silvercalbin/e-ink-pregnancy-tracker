@@ -6,7 +6,7 @@ Main script with smart e-ink refresh logic
 Features:
 - Daily refresh at midnight
 - Progress refresh at 0.1% steps (06–22h, start page only)
-- Weekly full clear (Sunday 04:00)
+- Weekly full clear (Sunday 04:00+)
 """
 import json
 import os
@@ -69,7 +69,8 @@ try:
     # State tracking
     last_date = datetime.date.today()
     last_progress = round(pregnancy.get_progress() * 100, 1)
-    last_full_clear_week = datetime.date.today().isocalendar()[1]
+    # Set last_full_clear_week to last week, to ensure clear triggers
+    last_full_clear_week = datetime.date.today().isocalendar()[1] - 1
 
     # 🎛 BUTTON SETUP
     try:
@@ -110,14 +111,18 @@ try:
                     update_display(0)
                     last_progress = current_progress
 
-            # 🧹 WEEKLY FULL CLEAR (Sunday 04:00)
+            # 🧹 WEEKLY FULL CLEAR (Sunday 04:00+)
             current_week = today.isocalendar()[1]
             if (
-                now.weekday() == 6 and  # Sunday
-                now.hour == 4 and
+                now.weekday() == 6 and  # Sonntag
+                now.hour >= 4 and       # ab 04:00 Uhr
                 current_week != last_full_clear_week
             ):
-                logging.warning("Weekly full clear")
+                logging.warning(
+                    f"Weekly full clear triggered: weekday={now.weekday()}, "
+                    f"hour={now.hour}, current_week={current_week}, "
+                    f"last_full_clear_week={last_full_clear_week}"
+                )
                 epd.Clear()
                 update_display(screen_ui.current_page)
                 last_full_clear_week = current_week
