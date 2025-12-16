@@ -6,6 +6,7 @@ Main script with smart e-ink refresh logic
 Features:
 - Daily refresh at midnight
 - Progress refresh at 0.1% steps (06–22h, start page only)
+- Weekly full clear (Sunday 04:00+), bulletproof
 """
 import json
 import os
@@ -104,6 +105,18 @@ try:
                     logging.warning(f"Progress changed: {last_progress}% → {current_progress}%")
                     update_display(0)
                     last_progress = current_progress
+
+            # 🧹 WEEKLY FULL CLEAR (Sunday 04:00+), bulletproof
+            global full_clear_done_this_week
+            if now.weekday() == 6 and now.hour >= 4 and not full_clear_done_this_week:
+                logging.warning(f"Weekly full clear triggered: {now}")
+                epd.Clear()
+                update_display(screen_ui.current_page)
+                full_clear_done_this_week = True
+
+            # Reset nach Mitternacht Montag früh, damit nächste Woche wieder Clear möglich ist
+            if now.weekday() == 0 and now.hour == 0:
+                full_clear_done_this_week = False
 
             # 🔘 BUTTON HANDLING
             for btn, pin in buttons.items():
