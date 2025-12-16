@@ -6,7 +6,7 @@ Main script with smart e-ink refresh logic
 Features:
 - Daily refresh at midnight
 - Progress refresh at 0.1% steps (06–22h, start page only)
-- Weekly full clear (Sunday 04:00+)
+- Weekly full clear (Sunday 04:00+), bulletproof
 """
 import json
 import os
@@ -16,7 +16,10 @@ import signal
 import sys
 import datetime
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(
+    level=logging.WARNING,
+    format='%(asctime)s %(levelname)s: %(message)s'
+)
 
 # Load config
 config_file_path = os.path.join(
@@ -29,6 +32,7 @@ config = json.load(open(config_file_path))
 epd = None
 screen_ui = None
 pregnancy = None
+full_clear_done_this_week = False  # Track weekly full clear
 
 def cleanup_and_exit(signum=None, frame=None):
     global epd
@@ -69,8 +73,6 @@ try:
     # State tracking
     last_date = datetime.date.today()
     last_progress = round(pregnancy.get_progress() * 100, 1)
-    # Set last_full_clear_week to last week, to ensure clear triggers
-    last_full_clear_week = datetime.date.today().isocalendar()[1] - 1
 
     # 🎛 BUTTON SETUP
     try:
@@ -97,35 +99,24 @@ try:
                 last_date = today
 
             # 📊 PROGRESS REFRESH (06–22, start page only)
-            if (
-                screen_ui.current_page == 0 and
-                6 <= now.hour <= 22
-            ):
-                current_progress = round(
-                    pregnancy.get_progress() * 100, 1
-                )
+            if screen_ui.current_page == 0 and 6 <= now.hour <= 22:
+                current_progress = round(pregnancy.get_progress() * 100, 1)
                 if current_progress != last_progress:
-                    logging.warning(
-                        f"Progress changed: {last_progress}% → {current_progress}%"
-                    )
+                    logging.warning(f"Progress changed: {last_progress}% → {current_progress}%")
                     update_display(0)
                     last_progress = current_progress
 
-            # 🧹 WEEKLY FULL CLEAR (Sunday 04:00+)
-            current_week = today.isocalendar()[1]
-            if (
-                now.weekday() == 6 and  # Sonntag
-                now.hour >= 4 and       # ab 04:00 Uhr
-                current_week != last_full_clear_week
-            ):
-                logging.warning(
-                    f"Weekly full clear triggered: weekday={now.weekday()}, "
-                    f"hour={now.hour}, current_week={current_week}, "
-                    f"last_full_clear_week={last_full_clear_week}"
-                )
+            # 🧹 WEEKLY FULL CLEAR (Sunday 04:00+), bulletproof
+            global full_clear_done_this_week
+            if now.weekday() == 6 and now.hour >= 4 and not full_clear_done_this_week:
+                logging.warning(f"Weekly full clear triggered: {now}")
                 epd.Clear()
                 update_display(screen_ui.current_page)
-                last_full_clear_week = current_week
+                full_clear_done_this_week = True
+
+            # Reset nach Mitternacht Montag früh, damit nächste Woche wieder Clear möglich ist
+            if now.weekday() == 0 and now.hour == 0:
+                full_clear_done_this_week = False
 
             # 🔘 BUTTON HANDLING
             for btn, pin in buttons.items():
