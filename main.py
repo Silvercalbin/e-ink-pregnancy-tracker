@@ -80,7 +80,7 @@ try:
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
-        buttons = {1: 5, 2: 6, 3: 13, 4: 19}
+        buttons = {1: 5, 2: 6, 3: 19, 4: 13}
         for pin in buttons.values():
             GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
